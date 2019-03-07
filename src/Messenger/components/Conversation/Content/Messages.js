@@ -187,6 +187,13 @@ mutation ($from: String!, $to: String!, $message: String! ) {
     // TODO https://www.apollographql.com/docs/react/advanced/caching.html#after-mutations
     update: (store, { data: { sendMessage } }) => {
 
+      // Read the data from our cache for this query.
+      const data = store.readQuery({ query: CONVERSATION_CONNECTION_QUERY });
+      // Add our comment from the mutation to the end.
+      data.comments.push(sendMessage);
+      // Write our data back to the cache.
+      store.writeQuery({ query: CONVERSATION_CONNECTION_QUERY, data });
+
       // TODO you need to update a thread and write the Query again in the cache
       // Hint https://www.apollographql.com/docs/react/advanced/caching.html#writequery-and-writefragment
     },
@@ -195,4 +202,4 @@ mutation ($from: String!, $to: String!, $message: String! ) {
 
 // export default withRouter(Messages);
 export default sendMessage( withRouter(graphql(CONVERSATION_CONNECTION_QUERY)(Messages)))
-// export default compose(withRouter, graphql(query))(Messages);
+// export default compose(withRouter, graphql(CONVERSATION_CONNECTION_QUERY))(Messages);
