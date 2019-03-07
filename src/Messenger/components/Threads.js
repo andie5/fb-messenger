@@ -8,6 +8,7 @@ import gql from 'graphql-tag'
 import colours from '../../App/styles/export/colours.css'
 import Avatar from '../../App/components/Layout/Avatar'
 import Icon from '../../App/components/Layout/Icon'
+import { compose } from 'redux';
 
 const ThreadsWrapper = styled.div`
   display: flex;
@@ -62,14 +63,16 @@ const UserName = styled.div`
 const Threads = ({ history, match, data }) => {
   let content
   if (data.loading) {
-    content = <p>Loading...</p>
+    content = <p>
+      
+      Loading...</p>
   } else if (data.error) {
     content = <p>Oops, there was a problem</p>
   } else {
-    const { threads = [] } = data
-    content = threads.length ? (
+    const { threadsConnection: {edges} } = data
+    content = edges.length ? (
       <ThreadList>
-        {threads.map(thread => (
+        {edges.map(({node: thread}) => (
           <li onClick={() => history.push(`${match.url}/${thread.username}`)}>
             <Avatar username={thread.username} size="large" />
             <UserName>
@@ -110,6 +113,35 @@ Threads.defaultProps = {
   }
 }
 
+const query = gql`
+query threadsConnection {
+  threadsConnection {
+    edges {
+      node {
+        username
+        firstName
+        lastName
+        lastMessage {
+          message
+        }
+          }
+    }
+  }
+}
+`
+
+// query threads {
+//   threads {
+//     username
+//     firstName
+//     lastName
+//     lastMessage{
+//       message
+//     } 
+//   }
+// }
+
+
 /* 
 There are two ways you can "connect" to the GraphQL API, Render Props or Higher-Order Components (HoC). 
 In this example we are going to use HoC.
@@ -128,5 +160,14 @@ Official documentation https://www.apollographql.com/docs/react/api/react-apollo
 E.g.
 export default graphql(query)(MyCoolComponent)
 */
+export default withRouter(graphql(query)(Threads))
 
-export default withRouter(Threads)
+// This was the original
+// export default withRouter(Threads)
+
+// or I can do this
+// const getThreads = graphql(query)
+// export default withRouter(Threads)
+
+// You need to import compose from apollo-react
+// export default compose(withRouter, graphql(query))(Threads);

@@ -2,8 +2,8 @@ import React from "react";
 import PropTypes from "prop-types";
 import styled, { css } from "styled-components";
 import { withRouter } from "react-router-dom";
-// import { graphql } from 'react-apollo'
-// import gql from 'graphql-tag'
+import { graphql, compose } from 'react-apollo'
+import gql from 'graphql-tag'
 
 // import MESSAGES_QUERY from './Messages.graphql'
 // import { THREADS_QUERY } from '../../Threads'
@@ -153,19 +153,46 @@ Messages.defaultProps = {
   }
 };
 
-// use the following function to send a message
-// const sendMessage = graphql(gql`
-//     TODO add a mutation here
-// `,
-// {
-//   options: (props) => ({
-//     refetchQueries: // TODO https://www.apollographql.com/docs/react/advanced/caching.html#after-mutations
-//     update: (store, { data: { sendMessage } }) => {
-//       // TODO you need to update a thread and write the Query again in the cache
-//       // Hint https://www.apollographql.com/docs/react/advanced/caching.html#writequery-and-writefragment
-//     }
-//   }),
-//   name: 'sendMessage',
-// })
 
-export default withRouter(Messages);
+const CONVERSATION_CONNECTION_QUERY = gql`
+query conversationConnection($username: String!)  {
+  conversationConnection(username: $username) {
+    edges{
+      node{
+        to
+        from
+        message
+      }
+    }
+  }
+}
+`
+// use the following function to send a message
+const sendMessage = graphql(gql`
+mutation ($from: String!, $to: String!, $message: String! ) {
+  sendMessage(input: {from: $from, to: $to, message: $message}){
+    id
+  }
+}
+`,
+{
+  options: (props) => ({
+    refetchQueries: [{
+      query: 
+      CONVERSATION_CONNECTION_QUERY
+      ,
+      variables: {username: props.username}
+    }],
+  }),
+    // TODO https://www.apollographql.com/docs/react/advanced/caching.html#after-mutations
+    update: (store, { data: { sendMessage } }) => {
+
+      // TODO you need to update a thread and write the Query again in the cache
+      // Hint https://www.apollographql.com/docs/react/advanced/caching.html#writequery-and-writefragment
+    },
+  name: 'sendMessage',
+})
+
+// export default withRouter(Messages);
+export default sendMessage( withRouter(graphql(CONVERSATION_CONNECTION_QUERY)(Messages)))
+// export default compose(withRouter, graphql(query))(Messages);
