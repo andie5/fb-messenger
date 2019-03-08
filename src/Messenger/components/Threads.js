@@ -2,13 +2,13 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import styled from 'styled-components'
 import { withRouter } from 'react-router'
-import { graphql } from 'react-apollo'
+import { graphql, compose } from 'react-apollo'
 import gql from 'graphql-tag'
 
 import colours from '../../App/styles/export/colours.css'
 import Avatar from '../../App/components/Layout/Avatar'
 import Icon from '../../App/components/Layout/Icon'
-import { compose } from 'redux';
+// import { compose } from 'redux';
 
 const ThreadsWrapper = styled.div`
   display: flex;
@@ -113,7 +113,7 @@ Threads.defaultProps = {
   }
 }
 
-const query = gql`
+export const THREADS_QUERY  = gql`
 query threadsConnection {
   threadsConnection {
     edges {
@@ -160,7 +160,8 @@ Official documentation https://www.apollographql.com/docs/react/api/react-apollo
 E.g.
 export default graphql(query)(MyCoolComponent)
 */
-export default withRouter(graphql(query)(Threads))
+// export default withRouter(graphql(query)(Threads))
+
 
 // This was the original
 // export default withRouter(Threads)
@@ -169,5 +170,8 @@ export default withRouter(graphql(query)(Threads))
 // const getThreads = graphql(query)
 // export default withRouter(Threads)
 
+// or
 // You need to import compose from apollo-react
-// export default compose(withRouter, graphql(query))(Threads);
+
+const withThreads = graphql(THREADS_QUERY)
+export default compose(withThreads, withRouter)(Threads);

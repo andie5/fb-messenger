@@ -6,7 +6,7 @@ import { graphql, compose } from 'react-apollo'
 import gql from 'graphql-tag'
 
 // import MESSAGES_QUERY from './Messages.graphql'
-// import { THREADS_QUERY } from '../../Threads'
+import { THREADS_QUERY } from '../../Threads'
 import colours from "../../../../App/styles/export/colours.css";
 import Avatar from "../../../../App/components/Layout/Avatar";
 import Icon from "../../../../App/components/Layout/Icon";
@@ -172,10 +172,15 @@ const sendMessage = graphql(gql`
 mutation ($from: String!, $to: String!, $message: String! ) {
   sendMessage(input: {from: $from, to: $to, message: $message}){
     id
+    time
+    to
+    from
+    message
   }
 }
 `,
 {
+  // The options specify the variables you need explictly
   options: (props) => ({
     refetchQueries: [{
       query: 
@@ -186,6 +191,7 @@ mutation ($from: String!, $to: String!, $message: String! ) {
   }),
     // TODO https://www.apollographql.com/docs/react/advanced/caching.html#after-mutations
     update: (store, { data: { sendMessage } }) => {
+      const query = {query: THREADS_QUERY}
 
       // Read the data from our cache for this query.
       const data = store.readQuery({ query: CONVERSATION_CONNECTION_QUERY });
@@ -201,5 +207,7 @@ mutation ($from: String!, $to: String!, $message: String! ) {
 })
 
 // export default withRouter(Messages);
-export default sendMessage( withRouter(graphql(CONVERSATION_CONNECTION_QUERY)(Messages)))
-// export default compose(withRouter, graphql(CONVERSATION_CONNECTION_QUERY))(Messages);
+// export default sendMessage( withRouter(graphql(CONVERSATION_CONNECTION_QUERY)(Messages)))
+
+const withConversation = graphql(CONVERSATION_CONNECTION_QUERY)
+export default compose(withRouter, withConversation,sendMessage)(Messages);
