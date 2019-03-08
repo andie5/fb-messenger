@@ -8,9 +8,12 @@ import uiReducer, { getInitialState } from './ui'
 describe('UI reducer', () => {
   it(`should return the default state if no state is provided`, () => {
     const actualState = uiReducer(undefined, { type: "NO_RELEVANT_ACTION" })
-    const expectedState = getInitialState()
+    // Comment this to enable snapshot testing
+    // const expectedState = getInitialState()
 
-    expect(actualState).toEqual(expectedState)
+    // expect(actualState).toEqual(expectedState)
+    expect(actualState).toMatchSnapshot()
+
   })
 
   it(`should return a new state if it receives a ${TOGGLE_MESSAGE_DETAIL} action`, () => {
