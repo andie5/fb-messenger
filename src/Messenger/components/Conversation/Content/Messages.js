@@ -191,14 +191,20 @@ mutation ($from: String!, $to: String!, $message: String! ) {
   }),
     // TODO https://www.apollographql.com/docs/react/advanced/caching.html#after-mutations
     update: (store, { data: { sendMessage } }) => {
-      const query = {query: THREADS_QUERY}
+      const query = {query: THREADS_QUERY};
 
       // Read the data from our cache for this query.
-      const data = store.readQuery({ query: CONVERSATION_CONNECTION_QUERY });
+
+      // Old code before using the solution repo
+      // const data = store.readQuery({ query: CONVERSATION_CONNECTION_QUERY });
+      const data = store.readQuery(query);
       // Add our comment from the mutation to the end.
       data.comments.push(sendMessage);
       // Write our data back to the cache.
-      store.writeQuery({ query: CONVERSATION_CONNECTION_QUERY, data });
+
+      // Old code before using the solution repo
+      // store.writeQuery({ query: CONVERSATION_CONNECTION_QUERY, data });
+      store.writeQuery(...query, data );
 
       // TODO you need to update a thread and write the Query again in the cache
       // Hint https://www.apollographql.com/docs/react/advanced/caching.html#writequery-and-writefragment
